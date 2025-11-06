@@ -18,5 +18,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    
+    # - name: Login to Docker Hub
+    #   uses: docker/login-action@v3
+    #   with:
+    #     username: ${{ vars.DOCKERHUB_USERNAME }}
+    #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Docker Build
+      run: docker build -t kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest .
+
+    - name: Trivy Installation
+      run: |
+        sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -y
+        sudo apt-get install trivy -y
+
+    - name: Trivy image Scan
+      run: trivy image --format table -o image-report.html kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest
+
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Trivy-Docker-image-report
+        path: image-report.html
+
+    - name: Display Trivy Image Scan Report in Summary
+      run: |
+        echo "### Trivy Image Scan Report" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat image-report.html >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+
+    # - name: Docker Push
+    #   run: |
+    #     docker push kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest
