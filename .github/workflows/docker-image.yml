@@ -19,11 +19,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    # - name: Login to Docker Hub
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ vars.DOCKERHUB_USERNAME }}
-    #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Docker Build
       run: docker build -t kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest .
@@ -52,6 +52,6 @@ jobs:
         cat image-report.html >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
 
-    # - name: Docker Push
-    #   run: |
-    #     docker push kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest
+    - name: Docker Push
+      run: |
+        docker push kcmchandramoulli/basic-redis-chat-app-demo-python-simple-project:latest
